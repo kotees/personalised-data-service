@@ -14,8 +14,10 @@ public class ProductMetadata {
     @Id
     @Column(name = "productId")
     private String productId;
+
     @Column(name = "category")
     private String category;
+
     @Column(name = "brand")
     private String brand;
 }

@@ -12,5 +12,5 @@ public class PersonalisedDataDTO {
     @JsonProperty("shopperId")
     private String shopperId;
     @JsonProperty("shelf")
-    private List<ShelfDTO> shelf;
+    private List<ProductPersonalizationDTO> shelf;
 }

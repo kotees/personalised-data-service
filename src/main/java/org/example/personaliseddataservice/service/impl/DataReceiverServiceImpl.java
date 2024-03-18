@@ -4,12 +4,10 @@ import java.util.List;
 
 import org.example.personaliseddataservice.domain.PersonalisedDataDTO;
 import org.example.personaliseddataservice.domain.ProductMetadataDTO;
-import org.example.personaliseddataservice.entity.PersonalisedProductData;
 import org.example.personaliseddataservice.entity.ProductMetadata;
-import org.example.personaliseddataservice.entity.Shelf;
-import org.example.personaliseddataservice.repository.PersonalisedDataRepository;
+import org.example.personaliseddataservice.entity.ProductPersonalization;
 import org.example.personaliseddataservice.repository.ProductMetadataRepository;
-import org.example.personaliseddataservice.repository.ShelfRepository;
+import org.example.personaliseddataservice.repository.ProductPersonalizationRepository;
 import org.example.personaliseddataservice.service.DataReceiverService;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +16,13 @@ import jakarta.transaction.Transactional;
 @Service
 public class DataReceiverServiceImpl implements DataReceiverService {
 
-    private final PersonalisedDataRepository personalisedDataRepository;
-    private final ShelfRepository shelfRepository;
+    private final ProductPersonalizationRepository productPersonalizationRepository;
     private final ProductMetadataRepository productMetadataRepository;
 
-    public DataReceiverServiceImpl(final PersonalisedDataRepository personalisedDataRepository,
-                    final ShelfRepository shelfRepository,
+    public DataReceiverServiceImpl(final ProductPersonalizationRepository productPersonalizationRepository,
                     final ProductMetadataRepository productMetadataRepository) {
 
-        this.personalisedDataRepository = personalisedDataRepository;
-        this.shelfRepository = shelfRepository;
+        this.productPersonalizationRepository = productPersonalizationRepository;
         this.productMetadataRepository = productMetadataRepository;
     }
 
@@ -37,19 +32,18 @@ public class DataReceiverServiceImpl implements DataReceiverService {
 
         try {
 
-            final PersonalisedProductData productData = new PersonalisedProductData();
-            productData.setShopperId(personalisedData.getShopperId());
-            final PersonalisedProductData savedProductData = this.personalisedDataRepository.save(productData);
+            final List<ProductPersonalization> shelves = personalisedData.getShelf()
+                            .parallelStream()
+                            .map(shelfDTO -> {
+                                final ProductPersonalization productPersonalization = new ProductPersonalization();
+                                productPersonalization.setShopperId(personalisedData.getShopperId());
+                                productPersonalization.setProductId(shelfDTO.getProductId());
+                                productPersonalization.setRelevancyScore(shelfDTO.getRelevancyScore());
+                                return productPersonalization;
+                            })
+                            .toList();
 
-            final List<Shelf> shelves = personalisedData.getShelf().parallelStream().map(shelfDTO -> {
-                final Shelf shelf = new Shelf();
-                shelf.setPersonalisedProductData(savedProductData);
-                shelf.setProductId(shelfDTO.getProductId());
-                shelf.setRelevancyScore(shelfDTO.getRelevancyScore());
-                return shelf;
-            }).toList();
-
-            this.shelfRepository.saveAll(shelves);
+            this.productPersonalizationRepository.saveAll(shelves);
         } catch (Exception ex) {
 
             throw new RuntimeException("Exception while persisting personalised data", ex);

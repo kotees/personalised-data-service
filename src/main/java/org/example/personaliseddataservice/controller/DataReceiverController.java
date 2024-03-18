@@ -3,7 +3,6 @@ package org.example.personaliseddataservice.controller;
 import org.example.personaliseddataservice.domain.PersonalisedDataDTO;
 import org.example.personaliseddataservice.domain.ProductMetadataDTO;
 import org.example.personaliseddataservice.service.DataReceiverService;
-import org.example.personaliseddataservice.entity.PersonalisedProductData;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
